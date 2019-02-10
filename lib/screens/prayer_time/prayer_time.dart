@@ -1,17 +1,46 @@
+import 'dart:convert';
+
 import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:pray_partner/screens/screen_second.dart';
+import 'package:pray_partner/models/items.dart';
+import 'package:http/http.dart' as http;
+import 'package:pray_partner/models/prayer.dart';
 
-class ScreenThird extends StatefulWidget {
+class PrayerTime extends StatefulWidget {
   @override
   _ScreenState createState() => _ScreenState();
 }
 
-class _ScreenState extends State<ScreenThird> implements FlareController {
+class _ScreenState extends State<PrayerTime> implements FlareController {
   var animation = 'second_page';
+  Prayer prayer;
+  Items prayerItems;
+
+  var url =
+      "http://muslimsalat.com/mantin/daily.json?key=8f288be1cf63f9b3b113efe2ebe3202d";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  _displayPrayer(prayerName, prayerTime) {
+    return Container(
+        padding: EdgeInsets.all(20.0),
+        alignment: Alignment.centerRight,
+        child: Text(
+          "${prayerName} - " + prayerTime ?? 0,
+          style: TextStyle(
+              color: Theme
+                  .of(context)
+                  .canvasColor,
+              fontSize: 20.0),
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +53,11 @@ class _ScreenState extends State<ScreenThird> implements FlareController {
                 fit: BoxFit.cover,
                 animation: "second_page",
                 controller: this),
-            Column(
+            prayer == null
+                ? Center(
+              child: CircularProgressIndicator(),
+            )
+                : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
@@ -32,57 +65,26 @@ class _ScreenState extends State<ScreenThird> implements FlareController {
                     child: Text(
                       "Let's start by",
                       style: TextStyle(
-                          color: Theme.of(context).canvasColor, fontSize: 40.0),
+                          color: Theme
+                              .of(context)
+                              .canvasColor,
+                          fontSize: 40.0),
                     )),
                 Container(
                     child: Text(
-                  "configuring your timezone prayer",
-                  style: TextStyle(
-                      color: Theme.of(context).canvasColor, fontSize: 10.0),
-                )),
-                Container(
-                  padding: EdgeInsets.all(20)
-                ),
-                Container(
-                    padding: EdgeInsets.all(20.0),
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Subuh - 6.00",
+                      "configuring your timezone prayer",
                       style: TextStyle(
-                          color: Theme.of(context).canvasColor, fontSize: 20.0),
+                          color: Theme
+                              .of(context)
+                              .canvasColor,
+                          fontSize: 10.0),
                     )),
-                Container(
-                    padding: EdgeInsets.all(20.0),
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Zuhr - 1.30",
-                      style: TextStyle(
-                          color: Theme.of(context).canvasColor, fontSize: 20.0),
-                    )),
-                Container(
-                    padding: EdgeInsets.all(20.0),
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Asar - 4.30",
-                      style: TextStyle(
-                          color: Theme.of(context).canvasColor, fontSize: 20.0),
-                    )),
-                Container(
-                    padding: EdgeInsets.all(20.0),
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Maghrib - 7.30",
-                      style: TextStyle(
-                          color: Theme.of(context).canvasColor, fontSize: 20.0),
-                    )),
-                Container(
-                    padding: EdgeInsets.all(20.0),
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Isyak - 8.30",
-                      style: TextStyle(
-                          color: Theme.of(context).canvasColor, fontSize: 20.0),
-                    )),
+                Container(padding: EdgeInsets.all(20)),
+                _displayPrayer('Subuh', prayerItems.fajr),
+                _displayPrayer('Zuhr', prayerItems.dhuhr),
+                _displayPrayer('Asar', prayerItems.asr),
+                _displayPrayer('Maghrib', prayerItems.maghrib),
+                _displayPrayer('Isyak', prayerItems.isha),
               ],
             ),
             Container(
@@ -95,6 +97,16 @@ class _ScreenState extends State<ScreenThird> implements FlareController {
         ),
       ),
     );
+
+
+  }
+
+  fetchData() async {
+    var res = await http.get(url);
+    var decodedJson = jsonDecode(res.body);
+    prayer = Prayer.fromJson(decodedJson);
+    prayerItems = prayer?.items?.first;
+    setState(() {});
   }
 
   ActorAnimation _slideAnimation;

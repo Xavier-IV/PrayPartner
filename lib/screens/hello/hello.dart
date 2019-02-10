@@ -1,21 +1,27 @@
-import 'package:flare_dart/math/mat2d.dart';
-import 'package:flare_flutter/flare.dart';
-import 'package:flare_flutter/flare_actor.dart';
-import 'package:flare_flutter/flare_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:pray_partner/screens/screen_second.dart';
-import 'package:pray_partner/screens/screen_third.dart';
 
-class ScreenSecond extends StatefulWidget {
+import 'package:flare_flutter/flare_actor.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:pray_partner/screens/hello/hello_two.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class Hello extends StatefulWidget {
   @override
   _ScreenState createState() => _ScreenState();
 }
 
-class _ScreenState extends State<ScreenSecond> implements FlareController{
-  var animation = 'Slide';
+class _ScreenState extends State<Hello> {
+  var animation = 'rotate';
+
+  @override
+  void initState() {
+    super.initState();
+    _setFirstUser();
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Material(
       child: Container(
         child: Stack(
@@ -23,21 +29,20 @@ class _ScreenState extends State<ScreenSecond> implements FlareController{
             FlareActor("assets/images/sebastianczuma-mountain.flr",
                 alignment: Alignment.center,
                 fit: BoxFit.cover,
-                animation: "rotate",
-                controller: this),
+                animation: "rotate"),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Center(
                   child: Text(
-                    "Your elegant partner",
+                    "Pray Partner",
                     style: TextStyle(
                         color: Theme.of(context).canvasColor, fontSize: 40.0),
                   ),
                 ),
                 Center(
-                    child: Text("ready to assist",
+                    child: Text("by compwnd",
                         style: TextStyle(color: Colors.white))),
                 Center(
                   child: Container(
@@ -52,7 +57,6 @@ class _ScreenState extends State<ScreenSecond> implements FlareController{
                         },
                       )),
                 )
-
               ],
             ),
             Container(
@@ -67,61 +71,34 @@ class _ScreenState extends State<ScreenSecond> implements FlareController{
     );
   }
 
-  ActorAnimation _slideAnimation;
-  ActorAnimation _rotateAnimation;
-  double _cometTime = 0.0;
-  double _completeTime = 0.0;
-
-
-  @override
-  bool advance(FlutterActorArtboard artboard, double elapsed) {
-    if (this.animation == 'Slide' && _cometTime % _slideAnimation.duration <= 0.99) {
-      _cometTime += elapsed;
-      _completeTime += elapsed;
-      _slideAnimation.apply(
-          _cometTime % _slideAnimation.duration, artboard, 1.0);
-      _rotateAnimation.apply(
-          _cometTime % _rotateAnimation.duration, artboard, 1.0);
-    }
-    return true;
-  }
-
-  @override
-  void initialize(FlutterActorArtboard actor) {
-    _slideAnimation = actor.getAnimation("Slide");
-    _rotateAnimation = actor.getAnimation("rotate");
-  }
-
-  @override
-  void setViewTransform(Mat2D viewTransform) {
-    // TODO: implement setViewTransform
-  }
-
   void _setTransition() {
     setState(() {
       this.animation = 'Slide';
       Navigator.push(
         context,
-        MyCustomRoute(builder: (context) => ScreenThird()),
+        MyCustomRoute(builder: (context) => HelloTwo()),
       );
     });
   }
 
+  _setFirstUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('firstUser', true);
+  }
 }
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
-  MyCustomRoute({ WidgetBuilder builder, RouteSettings settings })
+  MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
       : super(builder: builder, settings: settings);
 
   @override
-  Widget buildTransitions(BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child) {
-    if (settings.isInitialRoute)
-      return child;
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    if (settings.isInitialRoute) return child;
     // Fades between routes. (If you don't want any animation,
     // just return child.)
     return new FadeTransition(opacity: animation, child: child);
   }
+
+
 }

@@ -2,17 +2,16 @@ import 'package:flare_dart/math/mat2d.dart';
 import 'package:flare_flutter/flare.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flare_flutter/flare_controller.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pray_partner/screens/screen_second.dart';
+import 'package:pray_partner/screens/prayer_time/prayer_time.dart';
 
-class Screen extends StatefulWidget {
+class HelloTwo extends StatefulWidget {
   @override
   _ScreenState createState() => _ScreenState();
 }
 
-class _ScreenState extends State<Screen>{
-  var animation = 'rotate';
+class _ScreenState extends State<HelloTwo> implements FlareController{
+  var animation = 'Slide';
 
   @override
   Widget build(BuildContext context) {
@@ -23,20 +22,21 @@ class _ScreenState extends State<Screen>{
             FlareActor("assets/images/sebastianczuma-mountain.flr",
                 alignment: Alignment.center,
                 fit: BoxFit.cover,
-                animation: "rotate"),
+                animation: "rotate",
+                controller: this),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Center(
                   child: Text(
-                    "Pray Partner",
+                    "Your elegant partner",
                     style: TextStyle(
-                        color: Theme.of(context).canvasColor, fontSize: 40.0),
+                        color: Theme.of(context).canvasColor, fontSize: 30.0),
                   ),
                 ),
                 Center(
-                    child: Text("by compwnd",
+                    child: Text("ready to assist",
                         style: TextStyle(color: Colors.white))),
                 Center(
                   child: Container(
@@ -51,6 +51,7 @@ class _ScreenState extends State<Screen>{
                         },
                       )),
                 )
+
               ],
             ),
             Container(
@@ -65,15 +66,46 @@ class _ScreenState extends State<Screen>{
     );
   }
 
+  ActorAnimation _slideAnimation;
+  ActorAnimation _rotateAnimation;
+  double _cometTime = 0.0;
+  double _completeTime = 0.0;
+
+
+  @override
+  bool advance(FlutterActorArtboard artboard, double elapsed) {
+    if (this.animation == 'Slide' && _cometTime % _slideAnimation.duration <= 0.99) {
+      _cometTime += elapsed;
+      _completeTime += elapsed;
+      _slideAnimation.apply(
+          _cometTime % _slideAnimation.duration, artboard, 1.0);
+      _rotateAnimation.apply(
+          _cometTime % _rotateAnimation.duration, artboard, 1.0);
+    }
+    return true;
+  }
+
+  @override
+  void initialize(FlutterActorArtboard actor) {
+    _slideAnimation = actor.getAnimation("Slide");
+    _rotateAnimation = actor.getAnimation("rotate");
+  }
+
+  @override
+  void setViewTransform(Mat2D viewTransform) {
+    // TODO: implement setViewTransform
+  }
+
   void _setTransition() {
     setState(() {
       this.animation = 'Slide';
       Navigator.push(
         context,
-        MyCustomRoute(builder: (context) => ScreenSecond()),
+        MyCustomRoute(builder: (context) => PrayerTime()),
       );
     });
   }
+
 }
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {

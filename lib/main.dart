@@ -1,9 +1,7 @@
-import 'package:flare_dart/math/mat2d.dart';
-import 'package:flare_flutter/flare.dart';
-import 'package:flare_flutter/flare_controller.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flare_flutter/flare_actor.dart';
-import 'package:pray_partner/screens/screen.dart';
+import 'package:pray_partner/screens/hello/hello.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -12,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Prayer Partner',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
@@ -27,18 +25,38 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-
-
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
-  final _widgetOptions = [
-    Screen()
-  ];
-  
+
   @override
-  Widget build(BuildContext context) {
-    return _widgetOptions.elementAt(_selectedIndex);
+  void initState() {
+    super.initState();
   }
 
-  
+  @override
+  Widget build(BuildContext context) {
+    return new Hello();
+//    return new Container(
+//        child: FutureBuilder<SharedPreferences>(
+//      future: SharedPreferences.getInstance(),
+//      builder:
+//          (BuildContext context, AsyncSnapshot<SharedPreferences> snapshot) {
+//        switch (snapshot.connectionState) {
+//          case ConnectionState.none:
+//          case ConnectionState.waiting:
+//            return new LoadingScreen();
+//          default:
+//            if (!snapshot.hasError) {
+//              if (snapshot.data.getBool("firstUser") != null) {
+//                return new ScreenThird();
+//              } else {
+//                return new Screen();
+//              }
+//
+//            } else {
+//              return LoadingScreen();
+//            }
+//        }
+//      },
+//    ));
+  }
 }
